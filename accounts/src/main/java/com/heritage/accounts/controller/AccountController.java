@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.heritage.accounts.config.AccountProperties;
 import com.heritage.accounts.models.Account;
 import com.heritage.accounts.models.Customer;
 import com.heritage.accounts.models.Properties;
 import com.heritage.accounts.repository.AccountRepository;
-import com.heritage.accounts.service.AccountsServiceConfig;
+import com.heritage.accounts.service.AccountConfig;
 
 @RestController
 public class AccountController {
@@ -24,7 +25,8 @@ public class AccountController {
 	AccountRepository accountRepository;
 	
 	@Autowired
-	private AccountsServiceConfig accountsConfig;
+	private AccountProperties accountProperties;
+	
 	
 	@GetMapping("/accounts")
 	public List<Account> getAccounts() {
@@ -42,13 +44,7 @@ public class AccountController {
 	}
 	
 	@GetMapping("/account/properties")
-	public String getPropertyDetails() throws JsonProcessingException {
-		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-		Properties properties = new Properties(accountsConfig.getMsg(), accountsConfig.getBuildVersion(),
-				accountsConfig.getMailDetails(), accountsConfig.getActiveBranches());
-		String jsonStr = ow.writeValueAsString(properties);
-		return jsonStr;
+	public Properties fetchAccountProperties() {
+		return accountProperties.getAccountProperties();
 	}
-	
-
 }

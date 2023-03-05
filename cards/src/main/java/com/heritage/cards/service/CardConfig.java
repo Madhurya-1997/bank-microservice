@@ -1,4 +1,4 @@
-package com.heritage.accounts.service;
+package com.heritage.cards.service;
 
 import java.util.List;
 import java.util.Map;
@@ -12,14 +12,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+
 @Configuration
-@ConfigurationProperties(prefix = "accounts")
+@ConfigurationProperties(prefix = "cards")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class AccountsServiceConfig {
+public class CardConfig {
 	
 	private String msg;
 	private String buildVersion;
