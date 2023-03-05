@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  accounts:
+    image: heritage/accounts:latest
+    mem_limit: 700m
+    ports:
+      - "8080:8080"
+    networks:
+      - 'heritage-network'
+
+  loans:
+    image: heritage/loans:latest
+    mem_limit: 700m
+    ports:
+      - "8090:8090"
+    networks:
+      - 'heritage-network'
+
+  cards:
+    image: heritage/cards:latest
+    mem_limit: 700m
+    ports:
+      - "9000:9000"
+    networks:
+      - 'heritage-network'
+
+networks:
+  heritage-network:
