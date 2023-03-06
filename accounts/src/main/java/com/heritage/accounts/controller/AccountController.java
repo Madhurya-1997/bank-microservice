@@ -8,15 +8,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.heritage.accounts.config.AccountProperties;
 import com.heritage.accounts.models.Account;
 import com.heritage.accounts.models.Customer;
 import com.heritage.accounts.models.Properties;
 import com.heritage.accounts.repository.AccountRepository;
-import com.heritage.accounts.service.AccountConfig;
 
 @RestController
 public class AccountController {
