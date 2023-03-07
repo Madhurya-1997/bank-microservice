@@ -21,12 +21,12 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-        delay: 5s
+        delay: 10s
         max_attempts: 3
         window: 120s
     environment:
       SPRING_PROFILES_ACTIVE: default
-      SPRING_CONFIG_IMPORT: configserver:http://localhost:8071
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071
 
   loans:
     image: 883630/loans:latest
@@ -40,12 +40,12 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-        delay: 5s
+        delay: 10s
         max_attempts: 3
         window: 120s
     environment:
       SPRING_PROFILES_ACTIVE: default
-      SPRING_CONFIG_IMPORT: configserver:http://localhost:8071
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071
 
   cards:
     image: 883630/cards:latest
@@ -59,12 +59,12 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-        delay: 5s
+        delay: 10s
         max_attempts: 3
         window: 120s
     environment:
       SPRING_PROFILES_ACTIVE: default
-      SPRING_CONFIG_IMPORT: configserver:http://localhost:8071
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071
 
 networks:
   bank-network:
