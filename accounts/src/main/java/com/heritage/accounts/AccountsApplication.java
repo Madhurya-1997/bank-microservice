@@ -1,16 +1,13 @@
 package com.heritage.accounts;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.heritage.accounts.models.Properties;
-import com.heritage.accounts.service.AccountConfig;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
+@RefreshScope // reload all properties in configserver that got changed without restarting accounts service
+@EnableFeignClients
 public class AccountsApplication {
 
 	public static void main(String[] args) {

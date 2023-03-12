@@ -9,11 +9,11 @@ services:
     networks:
       - bank-network
 
-  accounts:
-    image: 883630/accounts:latest
+  eurekaserver:
+    image: 883630/eurekaserver:latest
     mem_limit: 700m
     ports:
-      - "8080:8080"
+      - "8761:8761"
     networks:
       - bank-network
     depends_on:
@@ -27,6 +27,27 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8071
+
+  accounts:
+    image: 883630/accounts:latest
+    mem_limit: 700m
+    ports:
+      - "8080:8080"
+    networks:
+      - bank-network
+    depends_on:
+      - configserver
+      - eurekaserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
 
   loans:
     image: 883630/loans:latest
@@ -37,6 +58,7 @@ services:
       - bank-network
     depends_on:
       - configserver
+      - eurekaserver
     deploy:
       restart_policy:
         condition: on-failure
@@ -46,6 +68,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8071
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
 
   cards:
     image: 883630/cards:latest
@@ -56,6 +79,7 @@ services:
       - bank-network
     depends_on:
       - configserver
+      - eurekaserver
     deploy:
       restart_policy:
         condition: on-failure
@@ -65,6 +89,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8071
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
 
 networks:
   bank-network:

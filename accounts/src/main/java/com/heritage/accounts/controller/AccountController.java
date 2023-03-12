@@ -10,9 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.heritage.accounts.config.AccountProperties;
 import com.heritage.accounts.models.Account;
+import com.heritage.accounts.models.Card;
 import com.heritage.accounts.models.Customer;
+import com.heritage.accounts.models.CustomerDetails;
+import com.heritage.accounts.models.Loan;
 import com.heritage.accounts.models.Properties;
 import com.heritage.accounts.repository.AccountRepository;
+import com.heritage.accounts.service.client.CardsFeignClient;
+import com.heritage.accounts.service.client.LoansFeignClient;
 
 @RestController
 public class AccountController {
@@ -22,6 +27,12 @@ public class AccountController {
 	
 	@Autowired
 	private AccountProperties accountProperties;
+	
+	@Autowired
+	private LoansFeignClient loansFeignClient;
+	
+	@Autowired
+	private CardsFeignClient cardsFeignClient;
 	
 	
 	@GetMapping("/accounts")
@@ -42,5 +53,23 @@ public class AccountController {
 	@GetMapping("/account/properties")
 	public Properties fetchAccountProperties() {
 		return accountProperties.getAccountProperties();
+	}
+	
+	
+	/**
+	 * get all customer details, i.e., cards,loans and account details
+	 */
+	@PostMapping("/myCustomerDetails")
+	public CustomerDetails getCustomerDetails(@RequestBody Customer customer) {
+		List<Account> accounts = accountRepository.findByCustomerId(customer.getCustomerId());
+		List<Loan> loans = loansFeignClient.getLoansDetails(customer);
+		List<Card> cards = cardsFeignClient.getCardDetails(customer);
+		
+		CustomerDetails customerDetails = new CustomerDetails();
+		customerDetails.setAccounts(accounts);
+		customerDetails.setLoans(loans);
+		customerDetails.setCards(cards);
+		
+		return customerDetails;
 	}
 }
