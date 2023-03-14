@@ -91,5 +91,29 @@ services:
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8071
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
 
+  gatewayserver:
+    image: 883630/gatewayserver:latest
+    mem_limit: 700m
+    ports:
+      - "7000:7000"
+    networks:
+      - bank-network
+    depends_on:
+      - configserver
+      - eurekaserver
+      - accounts
+      - loans
+      - cards
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+
 networks:
   bank-network:
