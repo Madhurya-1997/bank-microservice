@@ -15,4 +15,9 @@ public class CustomerDetails {
 	private List<Loan> loans;
 	private List<Card> cards;
 	private List<Account> accounts;
+	private String fallbackMessage;
+	
+	public CustomerDetails(String fallbackMessage) {
+		this.fallbackMessage = fallbackMessage;
+	}
 }

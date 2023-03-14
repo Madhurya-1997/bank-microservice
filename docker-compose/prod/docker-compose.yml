@@ -44,6 +44,8 @@ services:
         delay: 10s
         max_attempts: 3
         window: 120s
+      mode: replicated
+      replicas: 3
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8071

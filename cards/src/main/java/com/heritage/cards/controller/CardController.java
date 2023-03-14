@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.heritage.cards.models.Properties;
@@ -24,12 +25,14 @@ public class CardController {
 	private CardProperties cardProperties;
 	
 	@GetMapping("/cards")
-	public List<Card> getAccounts() {
+	public List<Card> getAccounts(@RequestHeader("bank-trace-id") String traceId) {
 		return cardRepository.findAll();
 	}
 	
 	@PostMapping("/myCards")
-	public List<Card> getCardDetails(@RequestBody Customer customer) {
+	public List<Card> getCardDetails(
+			@RequestHeader("bank-trace-id") String traceId,
+			@RequestBody Customer customer) {
 		List<Card> cards = cardRepository.findByCustomerId(customer.getCustomerId());
 		
 		if (cards == null) {

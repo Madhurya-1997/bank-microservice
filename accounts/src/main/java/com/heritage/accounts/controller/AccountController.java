@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.heritage.accounts.config.AccountProperties;
@@ -18,6 +19,8 @@ import com.heritage.accounts.models.Properties;
 import com.heritage.accounts.repository.AccountRepository;
 import com.heritage.accounts.service.client.CardsFeignClient;
 import com.heritage.accounts.service.client.LoansFeignClient;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 @RestController
 public class AccountController {
@@ -35,13 +38,15 @@ public class AccountController {
 	private CardsFeignClient cardsFeignClient;
 	
 	
-	@GetMapping("/accounts")
-	public List<Account> getAccounts() {
+	@GetMapping("/getAllAccounts")
+	public List<Account> getAccounts(@RequestHeader("bank-trace-id") String traceId) {
 		return accountRepository.findAll();
 	}
 	
 	@PostMapping("/myAccount")
-	public List<Account> getAccountDetails(@RequestBody Customer customer) {
+	public List<Account> getAccountDetails(
+			@RequestHeader("bank-trace-id") String traceId,
+			@RequestBody Customer customer) {
 		List<Account> accounts = accountRepository.findByCustomerId(customer.getCustomerId());
 		
 		if (accounts == null) {
@@ -51,7 +56,7 @@ public class AccountController {
 	}
 	
 	@GetMapping("/account/properties")
-	public Properties fetchAccountProperties() {
+	public Properties fetchAccountProperties(@RequestHeader("bank-trace-id") String traceId) {
 		return accountProperties.getAccountProperties();
 	}
 	
@@ -60,10 +65,13 @@ public class AccountController {
 	 * get all customer details, i.e., cards,loans and account details
 	 */
 	@PostMapping("/myCustomerDetails")
-	public CustomerDetails getCustomerDetails(@RequestBody Customer customer) {
+	@CircuitBreaker(name = "myCustomerDetailsCB", fallbackMethod = "fallbackOnMyCustomerDetailsFailure")
+	public CustomerDetails getCustomerDetails(
+			@RequestHeader("bank-trace-id") String traceId,
+			@RequestBody Customer customer) {
 		List<Account> accounts = accountRepository.findByCustomerId(customer.getCustomerId());
-		List<Loan> loans = loansFeignClient.getLoansDetails(customer);
-		List<Card> cards = cardsFeignClient.getCardDetails(customer);
+		List<Loan> loans = loansFeignClient.getLoansDetails(traceId, customer);
+		List<Card> cards = cardsFeignClient.getCardDetails(traceId, customer);
 		
 		CustomerDetails customerDetails = new CustomerDetails();
 		customerDetails.setAccounts(accounts);
@@ -71,5 +79,13 @@ public class AccountController {
 		customerDetails.setCards(cards);
 		
 		return customerDetails;
+	}
+	
+	@SuppressWarnings("unused")
+	private CustomerDetails fallbackOnMyCustomerDetailsFailure(
+			String traceId,
+			Customer customer, 
+			Throwable t) {
+		return new CustomerDetails(t.getMessage());
 	}
 }
