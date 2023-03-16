@@ -2,6 +2,8 @@ package com.heritage.cards.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,9 @@ import com.heritage.cards.repository.CardRepository;
 
 @RestController
 public class CardController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(CardController.class);
+
 
 	@Autowired
 	private CardRepository cardRepository;
@@ -33,11 +38,15 @@ public class CardController {
 	public List<Card> getCardDetails(
 			@RequestHeader("bank-trace-id") String traceId,
 			@RequestBody Customer customer) {
+		logger.info("getCardDetails() method starts");
 		List<Card> cards = cardRepository.findByCustomerId(customer.getCustomerId());
 		
 		if (cards == null) {
+			logger.info("getCardDetails() method ends");
 			return null;
 		}
+		
+		logger.info("getCardDetails() method ends");
 		return cards;
 	}
 	

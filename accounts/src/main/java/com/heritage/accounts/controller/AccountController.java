@@ -2,6 +2,8 @@ package com.heritage.accounts.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,10 +27,13 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 @RestController
 public class AccountController {
 	
-	@Autowired
-	AccountRepository accountRepository;
+	private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
+
 	
 	@Autowired
+	AccountRepository accountRepository;
+
+	@Autowired 
 	private AccountProperties accountProperties;
 	
 	@Autowired
@@ -69,6 +74,8 @@ public class AccountController {
 	public CustomerDetails getCustomerDetails(
 			@RequestHeader("bank-trace-id") String traceId,
 			@RequestBody Customer customer) {
+		
+		logger.info("myCustomerDetails() method starts");
 		List<Account> accounts = accountRepository.findByCustomerId(customer.getCustomerId());
 		List<Loan> loans = loansFeignClient.getLoansDetails(traceId, customer);
 		List<Card> cards = cardsFeignClient.getCardDetails(traceId, customer);
@@ -78,6 +85,7 @@ public class AccountController {
 		customerDetails.setLoans(loans);
 		customerDetails.setCards(cards);
 		
+		logger.info("myCustomerDetails() method ends");
 		return customerDetails;
 	}
 	

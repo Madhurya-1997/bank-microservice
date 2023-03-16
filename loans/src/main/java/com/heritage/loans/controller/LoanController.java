@@ -2,6 +2,8 @@ package com.heritage.loans.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +22,8 @@ import com.heritage.loans.service.client.CardsFeignClient;
 @RestController
 public class LoanController {
 	
+	private static final Logger logger = LoggerFactory.getLogger(LoanController.class);
+	
 	@Autowired
 	private LoanRepository loanRepository;
 	@Autowired
@@ -36,11 +40,15 @@ public class LoanController {
 	public List<Loan> getLoansDetails(
 			@RequestHeader("bank-trace-id") String traceId,
 			@RequestBody Customer customer) {
+		
+		logger.info("getLoanDetails() method starts");
 		List<Loan> loans = loanRepository.findByCustomerIdOrderByStartDate(customer.getCustomerId());
 		
 		if (loans == null) {
+			logger.info("getLoanDetails() method ends");
 			return null;
 		}
+		logger.info("getLoanDetails() method ends");
 		return loans;
 	}
 
@@ -59,15 +67,18 @@ public class LoanController {
 	public String makeLoanPayment(
 			@RequestHeader("bank-trace-id") String traceId,
 			@RequestBody Customer customer) {
+		logger.info("makeLoanPayment() method starts");
 		List<Card> cards = cardsFeignClient.getCardDetails(traceId, customer);
 		
 		// some business logic here
 		
 		
 		if (cards.isEmpty()) {
-			return "Payment unsuccessfull";
+			logger.info("makeLoanPayment() method ends");
+			return "Loan Payment will be unsuccessfull";
 		}
 		
-		return "Payment successfully completed";
+		logger.info("makeLoanPayment() method ends");
+		return "Loan Payment is successfully completed";
 	}
 }
