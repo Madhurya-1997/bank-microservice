@@ -1,6 +1,7 @@
 package com.heritage.accounts.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import com.heritage.accounts.models.CustomerDetails;
 import com.heritage.accounts.models.Loan;
 import com.heritage.accounts.models.Properties;
 import com.heritage.accounts.repository.AccountRepository;
+import com.heritage.accounts.repository.CustomerRepository;
 import com.heritage.accounts.service.client.CardsFeignClient;
 import com.heritage.accounts.service.client.LoansFeignClient;
 
@@ -33,6 +35,9 @@ public class AccountController {
 	
 	@Autowired
 	AccountRepository accountRepository;
+	
+	@Autowired
+	CustomerRepository customerRepository;
 
 	@Autowired 
 	private AccountProperties accountProperties;
@@ -66,6 +71,23 @@ public class AccountController {
 	@GetMapping("/account/properties")
 	public Properties fetchAccountProperties(@RequestHeader("bank-trace-id") String traceId) {
 		return accountProperties.getAccountProperties();
+	}
+	
+	@PostMapping("/addCustomer")
+	public Customer addCustomer(@RequestBody Customer customer) {
+		return customerRepository.save(customer);
+	}
+	
+	@PostMapping("/addAccountForCustomer")
+	public Account addAccount(@RequestBody Account account) {
+		Integer customerId = account.getCustomerId();
+
+		Optional<Customer> customerData = customerRepository.findById(customerId);
+		if (customerData.isEmpty()) {
+			return new Account();
+		}
+		
+		return accountRepository.save(account);
 	}
 	
 	

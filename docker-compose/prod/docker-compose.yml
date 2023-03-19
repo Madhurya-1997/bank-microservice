@@ -17,7 +17,7 @@ services:
       - bank-network
 
   grafana:
-    image: prom/prometheus:latest
+    image: grafana/grafana:latest
     ports:
       - "3000:3000"
     environment:
