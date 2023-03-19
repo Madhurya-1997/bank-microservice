@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+
+  mysqlbankaccounts:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: root
+    ports:
+      - "3308:3306"

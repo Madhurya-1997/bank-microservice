@@ -1,6 +1,42 @@
 version: '3.8'
 
 services:
+
+  mysqlaccountsdb:
+    image: mysql:latest
+    restart: unless-stopped
+    container_name: mysqlaccountsdb
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: bank_accounts_db
+    ports:
+      - 3308:3306
+    volumes:
+      - /home/user/account-db:/var/lib/bank_accounts_db
+    networks:
+      - bank-network
+
+  grafana:
+    image: prom/prometheus:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+    networks:
+      - bank-network
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - bank-network
+
   zipkin:
     image: openzipkin/zipkin
     mem_limit: 700m
@@ -50,14 +86,23 @@ services:
     depends_on:
       - configserver
       - eurekaserver
+      - mysqlaccountsdb
     deploy:
       restart_policy:
         condition: on-failure
         delay: 10s
         max_attempts: 3
         window: 120s
+    volumes:
+      - .m2:/root/.m2
+    stdin_open: true
+    tty: true
     environment:
       SPRING_PROFILES_ACTIVE: default
+      MYSQL_HOST: mysqlaccountsdb
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_PORT: 3306
       SPRING_CONFIG_IMPORT: configserver:http://configserver:8071
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
       MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
@@ -133,3 +178,5 @@ services:
 
 networks:
   bank-network:
+
+

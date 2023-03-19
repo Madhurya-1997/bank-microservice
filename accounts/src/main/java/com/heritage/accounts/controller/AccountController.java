@@ -23,6 +23,7 @@ import com.heritage.accounts.service.client.CardsFeignClient;
 import com.heritage.accounts.service.client.LoansFeignClient;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.micrometer.core.annotation.Timed;
 
 @RestController
 public class AccountController {
@@ -44,11 +45,13 @@ public class AccountController {
 	
 	
 	@GetMapping("/getAllAccounts")
+	@Timed(value = "getAccounts.time", description = "Time taken to return all the accounts")
 	public List<Account> getAccounts(@RequestHeader("bank-trace-id") String traceId) {
 		return accountRepository.findAll();
 	}
 	
 	@PostMapping("/myAccount")
+	@Timed(value = "getAccountDetails.time", description = "Time taken to return account details for a customer")
 	public List<Account> getAccountDetails(
 			@RequestHeader("bank-trace-id") String traceId,
 			@RequestBody Customer customer) {
@@ -71,6 +74,7 @@ public class AccountController {
 	 */
 	@PostMapping("/myCustomerDetails")
 	@CircuitBreaker(name = "myCustomerDetailsCB", fallbackMethod = "fallbackOnMyCustomerDetailsFailure")
+	@Timed(value = "getCustomerDetails.time", description = "Time taken to return all the customer details")
 	public CustomerDetails getCustomerDetails(
 			@RequestHeader("bank-trace-id") String traceId,
 			@RequestBody Customer customer) {
